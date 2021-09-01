@@ -21,8 +21,9 @@ class Geometry():
 
 
 class Automaton():
-    def __init__(self,coordinate):
+    def __init__(self,coordinate,coordinate_next):
         self.coordinate = coordinate
+        self.coordinate_next = coordinate_next
 
     def get_coordinates(self):
         return self.coordinate
@@ -30,17 +31,18 @@ class Automaton():
 
 class Human(Automaton):
     def __init__(self,coordinate,id_human):
-        super().__init__(coordinate)
+        super().__init__(coordinate,coordinate)
         self.id_human = id_human
         
 class Zombie(Automaton):
-    def __init__(self,coordinate,id_zombie):
-        super().__init__(coordinate)
+    def __init__(self,coordinate,coordinate_next,id_zombie):
+        super().__init__(coordinate,coordinate_next)
         self.id_zombie = id_zombie
+        self.coordinate_next = coordinate_next
 
 class Hunter(Automaton):
     def __init__(self,coordinate):
-        super().__init__(coordinate)
+        super().__init__(coordinate,coordinate)
 
 # Save humans, destroy zombies!
 def straight_line(ash_x,ash_y,dest_x,dest_y):
@@ -70,7 +72,8 @@ while True:
     for i in range(zombie_count):
         zombie_id, zombie_x, zombie_y, zombie_xnext, zombie_ynext = [int(j) for j in input().split()]
         coordinate = Coordinate(zombie_x,zombie_y)
-        zombie = Zombie(coordinate,zombie_id)
+        coordinate_next = Coordinate(zombie_xnext,zombie_ynext)
+        zombie = Zombie(coordinate,coordinate_next,zombie_id)
         zombies.append(zombie)
 
     
@@ -84,7 +87,7 @@ while True:
 
                 if zombie.id_zombie not in zombies_ids:
                     dist = geometry.distance_calculation(zombie,human)
-                    if dist < min_dist:
+                    if dist <= min_dist:
                         min_dist = dist
                         closest_zombie = zombie
                         human_to_save = human
@@ -103,6 +106,7 @@ while True:
         if float((dist_1-2000)/1000) < float((dist_2+400)/400):
             #it can save human
             midpoint = [round((human.coordinate.x+zombie.coordinate.x)/2),round((human.coordinate.y+zombie.coordinate.y)/2)]
+            midpoint = [round((midpoint[0]+zombie.coordinate.x)/2),round((midpoint[1]+zombie.coordinate.y)/2)]
             break
             
     print("trying to save human id {}".format(human.id_human), file=sys.stderr, flush=True)
